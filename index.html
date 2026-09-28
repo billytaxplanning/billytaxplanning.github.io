@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lobby Slideshow</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0f2140; --navy2:#1b355f;
+    --teal:#0d6b6b; --teal2:#12908a;
+    --plum:#4a1d5e; --plum2:#6d2c86;
+    --rust:#8a3b12; --rust2:#b8551e;
+    --cream:#f6efe3; --ink:#1c1a17;
+    --gold:#f3b53f; --white:#ffffff;
+  }
+  html,body{margin:0;height:100%;background:#000;overflow:hidden;cursor:none;
+    font-family:'Outfit','Segoe UI',system-ui,Arial,sans-serif;color:var(--white)}
+  #stage{position:fixed;inset:0}
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+    padding:6vw 7vw;box-sizing:border-box;opacity:0;transition:opacity .9s ease;visibility:hidden}
+  .slide.on{opacity:1;visibility:visible}
+  .slide.on .rise{animation:rise .9s cubic-bezier(.2,.7,.2,1) both}
+  .slide.on .rise:nth-child(2){animation-delay:.15s}
+  .slide.on .rise:nth-child(3){animation-delay:.3s}
+  .slide.on .rise:nth-child(4){animation-delay:.45s}
+  @keyframes rise{from{opacity:0;transform:translateY(3vh)}to{opacity:1;transform:none}}
+
+  /* themes */
+  .t-navy{background:radial-gradient(120% 120% at 20% 10%,var(--navy2),var(--navy))}
+  .t-teal{background:radial-gradient(120% 120% at 80% 0%,var(--teal2),var(--teal))}
+  .t-plum{background:radial-gradient(120% 120% at 10% 90%,var(--plum2),var(--plum))}
+  .t-rust{background:radial-gradient(120% 120% at 90% 90%,var(--rust2),var(--rust))}
+  .t-cream{background:var(--cream);color:var(--ink)}
+  .t-cream .kicker{color:var(--rust2)}
+
+  /* type scale (all vw so it fits any TV) */
+  .kicker{font-size:2vw;letter-spacing:.35em;text-transform:uppercase;font-weight:600;opacity:.85;margin-bottom:2vh}
+  h1{font-size:6.2vw;line-height:1.02;margin:0 0 3vh;font-weight:800;letter-spacing:-.01em;max-width:80vw}
+  .sub{font-size:2.6vw;line-height:1.35;max-width:70vw;opacity:.92;font-weight:400;margin:0}
+  .tag{margin-top:6vh;font-size:2.1vw;font-weight:600;display:inline-block;padding:1.4vh 2.4vw;
+    border:.25vw solid currentColor;border-radius:99vw}
+
+  /* steps */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:3vw;margin-top:4vh}
+  .step{background:rgba(255,255,255,.1);border-radius:1.5vw;padding:3vh 2.2vw}
+  .t-cream .step{background:rgba(0,0,0,.06)}
+  .step .n{font-size:5vw;font-weight:800;line-height:1;color:var(--gold)}
+  .t-cream .step .n{color:var(--rust2)}
+  .step h3{font-size:2.6vw;margin:1.5vh 0 1vh}
+  .step p{font-size:1.9vw;line-height:1.35;margin:0;opacity:.9}
+
+  /* grid */
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2vw;margin-top:3vh}
+  .cell{background:rgba(255,255,255,.1);border-radius:1.5vw;padding:3.5vh 2vw;text-align:center}
+  .t-cream .cell{background:rgba(0,0,0,.06)}
+  .cell .ico{font-size:4.6vw;line-height:1;margin-bottom:1.5vh}
+  .cell h3{font-size:2.1vw;margin:0;line-height:1.2}
+
+  /* price list */
+  .prices{display:grid;grid-template-columns:1fr 1fr;gap:0 6vw;margin-top:2vh}
+  .row{display:flex;justify-content:space-between;align-items:baseline;font-size:2.5vw;
+    padding:1.6vh 0;border-bottom:.15vw solid rgba(255,255,255,.25)}
+  .t-cream .row{border-color:rgba(0,0,0,.18)}
+  .row b{font-weight:800;white-space:nowrap;margin-left:2vw}
+  .fine{margin-top:4vh;font-size:1.6vw;opacity:.75}
+
+  /* bullets */
+  .bul{font-size:2.6vw;line-height:1.5;margin:2vh 0 0;padding:0;list-style:none}
+  .bul li{padding-left:3vw;position:relative;margin-bottom:1.2vh}
+  .bul li::before{content:'';position:absolute;left:0;top:.9vw;width:1.3vw;height:1.3vw;border-radius:50%;background:var(--gold)}
+  .t-cream .bul li::before{background:var(--rust2)}
+
+  /* big number */
+  .big{font-size:16vw;font-weight:800;line-height:.95;color:var(--gold);letter-spacing:-.03em}
+  .t-cream .big{color:var(--rust2)}
+
+  /* phone held upright: scale type up and stack the layouts */
+  @media (orientation: portrait){
+    .slide{padding:8vw 7vw}
+    .kicker{font-size:4vw}
+    h1, h1[style]{font-size:10vw !important;max-width:100%}
+    .sub{font-size:5vw;max-width:100%}
+    .tag{font-size:4.2vw;padding:2vw 5vw;margin-top:5vh}
+    .big{font-size:28vw}
+    .steps{grid-template-columns:1fr;gap:3vw;margin-top:2vh}
+    .step{padding:3vw 4vw}.step .n{font-size:8vw}.step h3{font-size:5vw}.step p{font-size:4vw}
+    .grid{grid-template-columns:1fr 1fr;gap:3vw}
+    .cell{padding:4vw 2vw}.cell .ico{font-size:9vw}.cell h3{font-size:4vw}
+    .prices{grid-template-columns:1fr;gap:0}
+    .row{font-size:4.6vw;padding:1.2vh 0}
+    .fine{font-size:3.4vw}
+    .bul{font-size:4.8vw}.bul li{padding-left:7vw}.bul li::before{width:3vw;height:3vw;top:2vw}
+    #hint{font-size:4vw;padding:3vh 6vw;width:80vw;box-sizing:border-box}
+    #hint span{font-size:3vw !important}
+    #clock{font-size:4vw}
+  }
+
+  #bar{position:fixed;left:0;bottom:0;height:.6vh;background:var(--gold);width:0;z-index:9}
+  #clock{position:fixed;right:2vw;top:2.2vh;font-size:1.8vw;font-weight:600;opacity:.7;z-index:9;display:none}
+  #hint{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:20;background:rgba(0,0,0,.75);
+    padding:3vh 4vw;border-radius:1.5vw;font-size:2vw;text-align:center;line-height:1.5}
+  #hint.gone{display:none}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="bar"></div>
+<div id="clock"></div>
+<div id="hint">Click anywhere (or press <b>F</b>) for full screen<br>
+  <span style="font-size:1.4vw;opacity:.8">Space = pause &nbsp;&middot;&nbsp; &larr; &rarr; = skip &nbsp;&middot;&nbsp; Esc = exit full screen</span></div>
+
+<script>
+/* =====================================================================
+   EDIT THIS SECTION.  Everything below "END OF EDITABLE SECTION" is engine.
+   ---------------------------------------------------------------------
+   PRICES BELOW ARE SAMPLE PLACEHOLDERS - replace with your real prices.
+   Delete a slide by removing its {...} block. Reorder by moving blocks.
+   "seconds" = how long the slide stays up.
+   theme: navy | teal | plum | rust | cream
+   ===================================================================== */
+
+const SETTINGS = {
+  showClock: false,          // true = small clock top-right
+  reloadEveryMinutes: 360,   // re-reads this file so edits show up without touching the TV
+  defaultSeconds: 12,
+};
+
+const SLIDES = [
+
+  /* ---------- WASH & FOLD: the "save time" ads ---------- */
+  { type:'hero', theme:'navy', seconds:12,
+    kicker:'Wash & Fold',
+    h1:'Your weekend is worth more than a laundry pile.',
+    sub:'Drop it off dirty. Pick it up washed, dried, folded, and ready for the drawer.',
+    tag:'Ask about Wash & Fold at the counter' },
+
+  { type:'bignum', theme:'cream', seconds:12,
+    kicker:'Wash & Fold',
+    big:'5 hrs',
+    h1:'That’s a week of laundry for an average family.',
+    sub:'Sorting, washing, drying, folding, and the pile you never get to. Hand it to us and take the hours back.' },
+
+  { type:'steps', theme:'teal', seconds:14,
+    kicker:'Wash & Fold — how it works',
+    h1:'Three steps. Zero laundry days.',
+    steps:[
+      ['Drop it off','Bring it in a bag or basket. No sorting needed — we do that.'],
+      ['We do the work','Washed, dried, and folded neatly by people who fold for a living.'],
+      ['Pick it up','Bagged and ready to put straight into the closet.']
+    ] },
+
+  { type:'hero', theme:'plum', seconds:12,
+    kicker:'Wash & Fold',
+    h1:'Finish the laundry without starting it.',
+    sub:'Busy week? Big family? Dorm room? Bring us the everyday clothes, towels, and sheets. We charge by the pound.',
+    tag:'Drop off before noon, most orders ready next day' },
+
+  /* ---------- SERVICES ---------- */
+  { type:'grid', theme:'navy', seconds:14,
+    kicker:'What we do',
+    h1:'One stop for everything you wear and sleep on.',
+    cells:[
+      ['\u{1F9E5}','Dry Cleaning'],
+      ['\u{1F455}','Laundered & Pressed Shirts'],
+      ['\u{1F9FA}','Wash & Fold'],
+      ['✂️','Alterations & Repairs'],
+      ['\u{1F6CF}','Comforters & Bedding'],
+      ['\u{1F470}','Wedding Gowns'],
+      ['\u{1F9E4}','Leather & Suede'],
+      ['\u{1F454}','Uniforms & Work Wear']
+    ] },
+
+  /* ---------- PRICES (SAMPLE - EDIT) ---------- */
+  { type:'prices', theme:'cream', seconds:16,
+    kicker:'Everyday prices',
+    h1:'Dry Cleaning',
+    rows:[
+      ['Pants / Slacks','$7.95'], ['Blouse / Shirt','$7.95'],
+      ['Jacket / Blazer','$9.95'], ['2-Piece Suit','$17.90'],
+      ['Dress','$12.95'], ['Sweater','$7.95'],
+      ['Skirt','$7.95'], ['Coat','$14.95']
+    ],
+    fine:'Prices shown are for standard garments. Specialty fabrics, trim, and pleats quoted at the counter.' },
+
+  { type:'prices', theme:'teal', seconds:14,
+    kicker:'Everyday prices',
+    h1:'Laundry & Wash & Fold',
+    rows:[
+      ['Laundered Shirt (hanger)','$3.25'], ['Laundered Shirt (boxed)','$3.75'],
+      ['Wash & Fold, per lb','$2.00'], ['Wash & Fold minimum','10 lb'],
+      ['Comforter (any size)','$29.95'], ['Blanket','$19.95']
+    ],
+    fine:'Wash & Fold is weighed at drop-off. Ask us about starch and hanger vs. fold on shirts.' },
+
+  /* ---------- SEASONAL / SPECIALTY ---------- */
+  { type:'bullets', theme:'rust', seconds:13,
+    kicker:'Bedding season',
+    h1:'Cooler nights are coming. Is the comforter ready?',
+    bullets:[
+      'Comforters, duvets, quilts, and blankets — any size',
+      'Cleaned in machines big enough to do it right',
+      'Back to you fresh, fluffed, and bagged for storage'
+    ] },
+
+  { type:'hero', theme:'navy', seconds:12,
+    kicker:'Shirts',
+    h1:'Crisp shirts, every single week.',
+    sub:'Laundered, pressed, and finished by hand where it counts. Light, medium, or heavy starch — your call.',
+    tag:'Hanger or folded & boxed' },
+
+  { type:'bullets', theme:'plum', seconds:13,
+    kicker:'Alterations',
+    h1:'Make it fit. Make it last.',
+    bullets:[
+      'Hems, waists, sleeves, and zippers',
+      'Buttons and small repairs while we clean',
+      'Bring it in and we’ll pin it with you'
+    ] },
+
+  /* ---------- HELPFUL TIP (keeps people watching) ---------- */
+  { type:'bullets', theme:'cream', seconds:13,
+    kicker:'Quick tip',
+    h1:'Spilled something? Don’t rub it.',
+    bullets:[
+      'Blot, don’t scrub — rubbing sets the stain',
+      'Skip the home remedies; some make it permanent',
+      'Bring it in soon and tell us what it is. We’ll take it from there.'
+    ] },
+
+  { type:'hero', theme:'teal', seconds:10,
+    kicker:'Thank you',
+    h1:'Thanks for trusting us with your clothes.',
+    sub:'Questions about anything you see here? Just ask at the counter.' },
+];
+
+/* ============ END OF EDITABLE SECTION ============ */
+
+const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+const render = {
+  hero: s => `<div class="kicker rise">${esc(s.kicker||'')}</div>
+    <h1 class="rise">${esc(s.h1)}</h1>
+    ${s.sub?`<p class="sub rise">${esc(s.sub)}</p>`:''}
+    ${s.tag?`<div class="rise"><span class="tag">${esc(s.tag)}</span></div>`:''}`,
+  bignum: s => `<div class="kicker rise">${esc(s.kicker||'')}</div>
+    <div class="big rise">${esc(s.big)}</div>
+    <h1 class="rise" style="font-size:4.6vw">${esc(s.h1)}</h1>
+    ${s.sub?`<p class="sub rise">${esc(s.sub)}</p>`:''}`,
+  steps: s => `<div class="kicker rise">${esc(s.kicker||'')}</div>
+    <h1 class="rise" style="font-size:5vw">${esc(s.h1)}</h1>
+    <div class="steps rise">${s.steps.map((st,i)=>`<div class="step"><div class="n">${i+1}</div><h3>${esc(st[0])}</h3><p>${esc(st[1])}</p></div>`).join('')}</div>`,
+  grid: s => `<div class="kicker rise">${esc(s.kicker||'')}</div>
+    <h1 class="rise" style="font-size:4.6vw">${esc(s.h1)}</h1>
+    <div class="grid rise">${s.cells.map(c=>`<div class="cell"><div class="ico">${c[0]}</div><h3>${esc(c[1])}</h3></div>`).join('')}</div>`,
+  prices: s => `<div class="kicker rise">${esc(s.kicker||'')}</div>
+    <h1 class="rise" style="font-size:5.2vw">${esc(s.h1)}</h1>
+    <div class="prices rise">${s.rows.map(r=>`<div class="row"><span>${esc(r[0])}</span><b>${esc(r[1])}</b></div>`).join('')}</div>
+    ${s.fine?`<div class="fine rise">${esc(s.fine)}</div>`:''}`,
+  bullets: s => `<div class="kicker rise">${esc(s.kicker||'')}</div>
+    <h1 class="rise" style="font-size:5.2vw">${esc(s.h1)}</h1>
+    <ul class="bul rise">${s.bullets.map(b=>`<li>${esc(b)}</li>`).join('')}</ul>`,
+};
+
+const stage = document.getElementById('stage');
+const bar = document.getElementById('bar');
+const els = SLIDES.map(s => {
+  const d = document.createElement('section');
+  d.className = `slide t-${s.theme||'navy'}`;
+  d.innerHTML = (render[s.type]||render.hero)(s);
+  stage.appendChild(d);
+  return d;
+});
+
+let i = -1, timer = null, paused = false, start = 0, dur = 0;
+function show(n){
+  i = (n + els.length) % els.length;
+  els.forEach((e,k)=>e.classList.toggle('on', k===i));
+  dur = (SLIDES[i].seconds || SETTINGS.defaultSeconds) * 1000;
+  start = performance.now();
+  clearTimeout(timer);
+  if(!paused) timer = setTimeout(()=>show(i+1), dur);
+}
+function tick(t){
+  if(!paused){ bar.style.width = Math.min(100,(t-start)/dur*100)+'%'; }
+  requestAnimationFrame(tick);
+}
+show(0); tick(0);
+
+/* controls */
+function fullscreen(){ const el=document.documentElement; (el.requestFullscreen||el.webkitRequestFullscreen||function(){}).call(el); }
+function hideHint(){ document.getElementById('hint').classList.add('gone'); }
+document.addEventListener('click', ()=>{ fullscreen(); hideHint(); });
+document.addEventListener('keydown', e=>{
+  hideHint();
+  if(e.key==='f'||e.key==='F') fullscreen();
+  if(e.key==='ArrowRight') show(i+1);
+  if(e.key==='ArrowLeft') show(i-1);
+  if(e.key===' '){ e.preventDefault(); paused=!paused; if(!paused){ show(i); } else clearTimeout(timer); }
+});
+setTimeout(hideHint, 15000);
+
+/* clock */
+if(SETTINGS.showClock){
+  const c=document.getElementById('clock'); c.style.display='block';
+  const tk=()=>c.textContent=new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+  tk(); setInterval(tk,10000);
+}
+
+/* keep the screen awake where the browser allows it */
+async function wake(){ try{ if('wakeLock' in navigator){ await navigator.wakeLock.request('screen'); } }catch(e){} }
+wake(); document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') wake(); });
+
+/* pick up edits automatically */
+if(SETTINGS.reloadEveryMinutes>0) setTimeout(()=>location.reload(), SETTINGS.reloadEveryMinutes*60000);
+</script>
+</body>
+</html>
